@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.data.analysis.mapper.AssessmentIndicatorsMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.example.data.analysis.entity.AssessmentIndicators">
+
+    </resultMap>
+    <select id="selectAssessmentCompany" resultType="com.example.data.analysis.dto.AssessmentIndicatorsDto">
+        select company_id,company_no,company_name from `assessment_indicators`
+        where
+        <if test=" assessmentIndicatorsCondition.keepDate !=null ">
+            DATE_FORMAT(keep_date,'%Y') = DATE_FORMAT(#{assessmentIndicatorsCondition.keepDate},'%Y') GROUP BY company_no
+        </if>
+
+    </select>
+
+
+</mapper>

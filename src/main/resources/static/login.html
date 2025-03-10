@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>loading</title>
+</head>
+<style>
+
+</style>
+<body>
+<!--该部分可自行div处理，切记图片一定要放在和改html文件同一个文件夹内-->
+<div class="load_box">
+  <div class="image-slider">
+    <img src="images/login.png" alt="Image 1" class="picture" >
+    <img src="images/login.png" alt="Image 2" class="picture" >
+    <img src="images/login.png" alt="Image 3" class="picture" >
+    <img src="images/login.png" alt="Image 4" class="picture" >
+  </div>
+
+  <form class="login_form" id="load-form">
+    <div class="form-container">
+      <p style="font-weight: bold;font-size: 40px">用户登录</p>
+      <p>欢迎使用！</p>
+      <p>
+        <label for="username"></label><input type="text" id="username" placeholder="用户名" name="username" class="uname" maxlength="16" required><br><br>
+      </p>
+      <p>
+        <label for="password"></label><input type="password" id="password" placeholder="密码" name="password" minlength="6" maxlength="16" required class="pass"><br><br>
+
+      </p>
+
+      <p>
+        <input type="submit" id="load_button" value="登录" name="load_button" >
+      </p>
+<!--      <button onclick="openModal()">修改密码</button>-->
+    </div>
+  </form>
+  <div id="xgModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <form id="xg_password">
+        <label for="xg_username">用户名：</label><input type="text" id="xg_username" required minlength="11" maxlength="11">
+        <label for="old_password">输入原密码：</label><input type="password" id="old_password" minlength="6" maxlength="15" required>
+        <label for="new_password">输入新密码：</label><input type="password" id="new_password" minlength="6" maxlength="15" required>
+        <label for="check_password">确认密码：</label><input type="password" id="check_password" minlength="6" maxlength="15"required>
+        <div class="button-container">
+          <button type="submit">提交</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<link rel="stylesheet" href="css/login.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="js/login.js"></script>
+</body>
+</html>

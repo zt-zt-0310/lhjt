@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.data.analysis.mapper.FinanceTypeMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.example.data.analysis.entity.FinanceType">
+        <result column="type_name" property="typeName" />
+        <result column="type_no" property="typeNo" />
+        <result column="type_status" property="typeStatus" />
+    </resultMap>
+
+</mapper>

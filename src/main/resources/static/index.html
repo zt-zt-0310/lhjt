@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>欢迎进入联环集团财务数据报表系统</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        /* 侧边栏样式 */
+        .sidebar {
+            height: 100%;
+            width: 200px;
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            background-color: #333;
+            overflow-x: hidden;
+            padding-top: 20px;
+        }
+
+        /* 侧边栏菜单项样式 */
+        .sidebar a {
+            padding: 6px 8px 6px 16px;
+            text-decoration: none;
+            font-size: 20px;
+            color: #f1f1f1;
+            display: block;
+        }
+
+        /* 菜单项悬停效果 */
+        .sidebar a:hover {
+            color: #818181;
+        }
+
+        /* 主内容区域样式 */
+        .main {
+            margin-left: 200px;
+            padding: 20px;
+        }
+
+        /* 页面内容默认隐藏 */
+        .page-content {
+            display: none;
+        }
+
+        /* 表格样式 */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+
+<body>
+<!-- 侧边栏菜单 -->
+<div class="sidebar">
+    <a href="#" data-target="dashboard">数据管理</a>
+    <a href="#" data-target="company">公司管理</a>
+    <a href="#" data-target="tabDate">数据类型关联</a>
+    <a href="#" data-target="users">用户管理</a>
+    <a href="#" data-target="settings">设置</a>
+</div>
+
+<!-- 主内容区域 -->
+<div class="main">
+    <!-- 仪表盘页面 -->
+    <div id="dashboard" class="page-content">
+        <h2>数据管理</h2>
+        <div class="stats">
+            <div class="stat">
+                <h3>用户总数</h3>
+                <p id="user-count">0</p>
+            </div>
+            <div class="stat">
+                <h3>活跃用户数</h3>
+                <p id="active-user-count">0</p>
+            </div>
+        </div>
+    </div>
+    <!-- 用户管理页面 -->
+    <div id="users" class="page-content">
+        <h2>用户管理</h2>
+        <table id="user-table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>用户名</th>
+                <th>邮箱</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <!-- 设置页面 -->
+    <div id="settings" class="page-content">
+        <h2>设置</h2>
+        <form id="settings-form">
+            <label for="theme">主题:</label>
+            <select id="theme">
+                <option value="light">亮色主题</option>
+                <option value="dark">暗色主题</option>
+            </select><br>
+            <label for="notifications">通知开关:</label>
+            <input type="checkbox" id="notifications"><br>
+            <button type="submit">保存设置</button>
+        </form>
+    </div>
+</div>
+
+<script src="js/index.js"></script>
+</body>
+
+</html>

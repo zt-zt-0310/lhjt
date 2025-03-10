@@ -1,0 +1,33 @@
+#下面这些内容是为了让MyBatis映射
+#指定Mybatis的Mapper文件
+mybatis:
+  mapper-locations:
+    classpath:  mappers/*xml
+#指定Mybatis的实体目录
+  type-aliases-package: com.example.data.analysis.entity
+
+spring:
+  #配置 数据库
+  datasource:
+    username: root #用户名
+    password: root #密码
+    url: jdbc:mysql://localhost:3306/analysis_data?useSSL=false&serverTimezone=UTC&&characterEncoding=utf-8&allowPublicKeyRetrieval=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  #  配置JSP 路径
+  mvc:
+    view:
+      prefix: /
+      suffix: .html
+    static-path-pattern: /static/**
+#  thymeleaf:
+#    prefix: classpath:/static/
+#    suffix: .html
+
+#mybatis-plus 打印日志 不需要手写sql 可查看把我们完成的sql
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+# 设置端口号
+server:
+  port: 8080
+

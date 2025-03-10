@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.data.analysis.mapper.FinanceDateMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.example.data.analysis.entity.FinanceDate">
+        <result column="company_no" property="companyNo" />
+        <result column="company_id" property="companyId" />
+        <result column="type_no" property="typeNo" />
+        <result column="current_amt" property="currentAmt" />
+        <result column="last_year_amt" property="lastYearAmt" />
+        <result column="last_year_total_amt" property="lastYearTotalAmt" />
+        <result column="this_year_total_amt" property="thisYearTotalAmt" />
+        <result column="add_amt" property="addAmt" />
+        <result column="add_rate" property="addRate" />
+        <result column="keep_date" property="keepDate" />
+    </resultMap>
+    <select id="selectListFinanceDate" resultType="com.example.data.analysis.dto.FinanceList">
+        SELECT
+            f.*,
+            c.company_name,
+            c.level,
+            c.high_company_no
+        FROM
+            finance_date f LEFT JOIN company c on c.id = f.company_id
+        <where>
+            f.del_flag = '0'
+            <if test="typeNo !='' and typeNo !=null ">
+                AND f.type_no = #{typeNo}
+            </if>
+            <if test=" companyNos.size > 0 ">
+                AND f.company_no in
+                <foreach collection="companyNos" item="companyNo" index="index" open="(" close=")" separator=",">
+                    #{companyNo}
+                </foreach>
+            </if>
+            <if test="!companyNos.size > 0 ">
+                AND (c.`level` = '1' or c.`level` = '0') and c.company_no != 'lhjtdt'
+            </if>
+            <if test="keepDate !='' and keepDate !=null ">
+                and DATE_FORMAT(f.keep_date,'%Y-%m') = DATE_FORMAT(#{keepDate} ,'%Y-%m')
+            </if>
+        </where>
+    </select>
+
+    <select id="getFinanceDateGraph" resultType="com.example.data.analysis.dto.FinanceList">
+        SELECT
+            f.*,
+            c.company_name,
+            c.level,
+            c.high_company_no
+        FROM
+            finance_date f LEFT JOIN company c on c.id = f.company_id
+        <where>
+            f.del_flag = '0'
+            <if test="typeNo !='' and typeNo !=null ">
+                AND f.type_no = #{typeNo}
+            </if>
+            <if test=" companyNos.size > 0 ">
+                AND f.company_no in
+                <foreach collection="companyNos" item="companyNo" index="index" open="(" close=")" separator=",">
+                    #{companyNo}
+                </foreach>
+            </if>
+            <if test="keepDate !='' and keepDate !=null ">
+                and DATE_FORMAT(f.keep_date,'%Y-%m') = DATE_FORMAT(#{keepDate} ,'%Y-%m')
+            </if>
+        </where>
+    </select>
+    <select id="getFinanceDateGraphQt" resultType="com.example.data.analysis.dto.FinanceList">
+        select SUM(current_amt)current_amt,SUM(last_year_amt)last_year_amt, SUM(last_year_total_amt)last_year_total_amt,
+               SUM(this_year_total_amt)this_year_total_amt, SUM(add_amt)add_amt,SUM(add_rate)add_rate  from  finance_date f
+        <where>
+            f.del_flag = '0'
+            <if test="typeNo !='' and typeNo !=null ">
+                AND f.type_no = #{typeNo}
+            </if>
+            <if test=" companyNos.size > 0 ">
+                AND f.company_no not in
+                <foreach collection="companyNos" item="companyNo" index="index" open="(" close=")" separator=",">
+                    #{companyNo}
+                </foreach>
+            </if>
+            <if test="keepDate !='' and keepDate !=null ">
+                and DATE_FORMAT(f.keep_date,'%Y-%m') = DATE_FORMAT(#{keepDate} ,'%Y-%m')
+            </if>
+        </where>
+    </select>
+
+    <select id="selectListFinanceDateCompare" resultType="com.example.data.analysis.dto.FinanceList">
+        SELECT
+        f.*,
+        c.company_name,
+        c.level,
+        c.high_company_no
+        FROM
+        finance_date f LEFT JOIN company c on c.id = f.company_id
+        <where>
+            f.del_flag = '0' AND f.type_no = '01'
+            <if test=" companyNos.size > 0 ">
+                AND f.company_no in
+                <foreach collection="companyNos" item="companyNo" index="index" open="(" close=")" separator=",">
+                    #{companyNo}
+                </foreach>
+            </if>
+
+            <if test="years.size > 0 ">
+                <if test=" months.size > 0">
+                    and
+                    <foreach collection="years" item="year" index="index" open="(" close=")" separator="or">
+                         DATE_FORMAT(f.keep_date,'%Y-%m') = DATE_FORMAT( #{year},'%Y-%m')
+                    </foreach>
+
+                </if>
+                <if test="!months.size > 0">
+                and
+                    <foreach collection="years" item="year" index="index" open="(" close=")" separator="or">
+                     DATE_FORMAT(f.keep_date,'%Y') = DATE_FORMAT(#{year}+'-01-01' ,'%Y')
+                    </foreach>
+                </if>
+            </if>
+            <if test="months.size > 0">
+                <if test=" !years.size > 0">
+                    and
+                    <foreach collection="months" item="month" index="index" open="(" close=")" separator="or">
+                     DATE_FORMAT(f.keep_date,'%m') = DATE_FORMAT('2025-'+#{month}+'-01' ,'%m')
+                    </foreach>
+                </if>
+            </if>
+
+        </where>
+    </select>
+</mapper>
