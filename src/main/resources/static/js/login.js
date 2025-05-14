@@ -47,7 +47,7 @@ $(document).ready(function() {
                 console.log(response+"-------------------")
                 if (response.code === "0000") {
                     alert(response.msg);
-                    window.location.href = "index.html";
+                    window.location.href = "html/index.html";
                 } else if(response.code === "9999"){
                     alert(response.msg);
                     // document.getElementById('xgModal').style.display = 'block';

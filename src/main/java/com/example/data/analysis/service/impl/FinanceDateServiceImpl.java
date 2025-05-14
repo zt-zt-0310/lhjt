@@ -80,7 +80,15 @@ public class FinanceDateServiceImpl extends ServiceImpl<FinanceDateMapper, Finan
         companyNos.add("lhjthb");
         companyNos.add("gykg");
         List<FinanceList> financeDateGraph = financeDateMapper.getFinanceDateGraph(financeType, companyNos, keepDate);
+        List<Company> companies = companyService.list(Wrappers.<Company>query().lambda().in(Company::getCompanyNo, companyNos));
+        List<Long> idList = new ArrayList<>();
+        idList = companies.stream().filter(str -> str.getCompanyNo()!=null).map(Company::getId).collect(Collectors.toList());
+        List<Company> companieIds = companyService.list(Wrappers.<Company>query().lambda().in(Company::getHighCompanyId, idList));
+
+        List<String> com = new ArrayList<>();
+        com = companieIds.stream().filter(str -> str.getCompanyNo()!=null).map(Company::getCompanyNo).collect(Collectors.toList());
         companyNos.add("lhjt");
+        companyNos.addAll(com);
         List<FinanceList> financeListQts = financeDateMapper.getFinanceDateGraphQt(financeType,companyNos,keepDate);
         if (financeListQts.get(0) == null){
             return financeDateGraph;

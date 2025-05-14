@@ -1,88 +1,86 @@
-// 获取所有侧边栏菜单项
-const menuItems = document.querySelectorAll('.sidebar a');
-
-// 为每个菜单项添加点击事件监听器
-menuItems.forEach(item => {
-    item.addEventListener('click', function (e) {
+// 菜单点击事件处理
+document.querySelectorAll('.sidebar a').forEach(link => {
+    link.addEventListener('click', function (e) {
         e.preventDefault();
-        // 获取目标页面的 ID
-        const targetPageId = this.getAttribute('data-target');
-        // 获取所有页面内容元素
-        const allPages = document.querySelectorAll('.page-content');
-        // 隐藏所有页面内容
-        allPages.forEach(page => {
-            page.style.display = 'none';
+        const target = this.dataset.target;
+        document.querySelectorAll('.page-content').forEach(content => {
+            content.style.display = 'none';
         });
-        // 显示目标页面内容
-        const targetPage = document.getElementById(targetPageId);
-            // window.location.href = targetPageId+".html";
-        if (targetPage) {
-            targetPage.style.display = 'block';
+        document.getElementById(target).style.display = 'block';
+
+        if (target === 'dashboard') {
+            // 当点击数据报表菜单时，发起后端请求
+            fetchData();
         }
     });
 });
 
-// 初始显示仪表盘页面
-document.getElementById('dashboard').style.display = 'block';
+// 从后端获取数据
+function fetchData() {
+    // 这里需要替换为实际的后端 API 地址
+    const apiUrl = 'your_backend_api_url';
 
-// 模拟用户数据
-const users = [
-    { id: 1, username: 'user1222', email: 'user1@example.com' },
-    { id: 2, username: 'user2', email: 'user2@example.com' },
-    { id: 3, username: 'user3', email: 'user3@example.com' }
-];
-
-// 更新仪表盘统计信息
-function updateDashboardStats() {
-    const userCountElement = document.getElementById('user-count');
-    const activeUserCountElement = document.getElementById('active-user-count');
-
-    userCountElement.textContent = users.length;
-    // 这里简单假设所有用户都是活跃用户
-    activeUserCountElement.textContent = users.length;
+    fetch(apiUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // 渲染数据到表格中
+            renderDataTable(data);
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
 }
 
-// 显示用户列表
-function displayUserList() {
-    const userTable = document.getElementById('user-table').getElementsByTagName('tbody')[0];
-    userTable.innerHTML = '';
+// 渲染数据到表格中
+function renderDataTable(data) {
+    const tableBody = document.getElementById('dataTableBody');
+    tableBody.innerHTML = '';
 
-    users.forEach(user => {
-        const newRow = userTable.insertRow();
-        const idCell = newRow.insertCell(0);
-        const usernameCell = newRow.insertCell(1);
-        const emailCell = newRow.insertCell(2);
-        const actionCell = newRow.insertCell(3);
+    data.forEach(item => {
+        const row = document.createElement('tr');
 
-        idCell.textContent = user.id;
-        usernameCell.textContent = user.username;
-        emailCell.textContent = user.email;
+        // 这里需要根据实际的数据结构和表格列进行调整
+        const cell1 = document.createElement('td');
+        cell1.textContent = item.someField;
+        row.appendChild(cell1);
 
-        const deleteButton = document.createElement('button');
-        deleteButton.textContent = '删除';
-        deleteButton.addEventListener('click', function () {
-            const index = users.findIndex(u => u.id === user.id);
-            if (index > -1) {
-                users.splice(index, 1);
-                displayUserList();
-                updateDashboardStats();
-            }
-        });
-        actionCell.appendChild(deleteButton);
+        // 处理营业收入列
+        const cell2 = document.createElement('td');
+        cell2.textContent = item.revenue1;
+        row.appendChild(cell2);
+        const cell3 = document.createElement('td');
+        cell3.textContent = item.revenue2;
+        row.appendChild(cell3);
+
+        // 处理利润总额列
+        const cell4 = document.createElement('td');
+        cell4.textContent = item.profit1;
+        row.appendChild(cell4);
+        const cell5 = document.createElement('td');
+        cell5.textContent = item.profit2;
+        row.appendChild(cell5);
+
+        // 处理实现税金列
+        const cell6 = document.createElement('td');
+        cell6.textContent = item.tax1;
+        row.appendChild(cell6);
+        const cell7 = document.createElement('td');
+        cell7.textContent = item.tax2;
+        row.appendChild(cell7);
+
+        // 处理入库税金列
+        const cell8 = document.createElement('td');
+        cell8.textContent = item.paidTax1;
+        row.appendChild(cell8);
+        const cell9 = document.createElement('td');
+        cell9.textContent = item.paidTax2;
+        row.appendChild(cell9);
+
+        tableBody.appendChild(row);
     });
 }
-
-// 监听设置表单提交事件
-const settingsForm = document.getElementById('settings-form');
-settingsForm.addEventListener('submit', function (e) {
-    e.preventDefault();
-    const theme = document.getElementById('theme').value;
-    const notifications = document.getElementById('notifications').checked;
-    console.log(`主题设置为: ${theme}`);
-    console.log(`通知开关状态: ${notifications ? '开启' : '关闭'}`);
-    alert('设置已保存');
-});
-
-// 初始化页面数据
-updateDashboardStats();
-displayUserList();

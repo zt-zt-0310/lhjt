@@ -40,6 +40,12 @@ public class LoginController {
         if (null==one){
             return IResponse.fail("账号密码不正确！");
         }
+        if("0".equals(one.getEquipmentNo())){
+            one.setEquipmentNo(request.getEquipmentNo());
+        }else if(!"1".equals(one.getEquipmentNo()) && request.getEquipmentNo().equals(one.getEquipmentNo())){
+            return IResponse.fail("当前设备和账户不一致，请联系管理员！");
+        }
+        userService.updateById(one);
         String token = jwtUtil.generateToken(one.getName(),one.getPassword());
         LoginDate loginDate = new LoginDate();
         loginDate.setToken(token);
@@ -49,7 +55,8 @@ public class LoginController {
     @PostMapping("/insertUser")
     @ApiOperation(value = "新增用户",httpMethod = "POST",response = User.class)
     public IResponse insertUser(@RequestBody User request) {
-        return IResponse.success( userService.saveOrUpdate(request));
+        return IResponse.fail("注册失败，请联系管理员！");
+//        return IResponse.success( userService.saveOrUpdate(request));
     }
 
     @GetMapping("/user")

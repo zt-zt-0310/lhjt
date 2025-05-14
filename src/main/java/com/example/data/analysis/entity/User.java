@@ -22,5 +22,10 @@ public class User extends BaseEntity<User> implements Serializable {
 
     private String deptId;
 
+    /**
+     * 设备编号
+     */
+    private String equipmentNo;
+
 
 }

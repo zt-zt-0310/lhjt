@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>公司管理</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    .sidebar {
+      height: 100%;
+      width: 200px;
+      position: fixed;
+      z-index: 1;
+      top: 0;
+      left: 0;
+      background-color: #333;
+      overflow-x: hidden;
+      padding-top: 20px;
+    }
+
+    .sidebar a {
+      padding: 6px 8px 6px 16px;
+      text-decoration: none;
+      font-size: 20px;
+      color: #f1f1f1;
+      display: block;
+    }
+
+    .sidebar a:hover {
+      color: #818181;
+    }
+
+    .main {
+      margin-left: 200px;
+      padding: 20px;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    th,
+    td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+
+<body>
+<!-- 引入公共菜单 -->
+<div id="menu-placeholder"></div>
+<script>
+  fetch('index.html')
+          .then(response => response.text())
+          .then(data => {
+            document.getElementById('menu-placeholder').innerHTML = data;
+          });
+</script>
+
+<div class="main">
+  <h2>公司管理</h2>
+  <table id="company-table">
+    <thead>
+    <tr>
+      <th>公司ID</th>
+      <th>公司名称</th>
+      <th>联系人</th>
+      <th>联系电话</th>
+      <th>操作</th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+</body>
+
+</html>
