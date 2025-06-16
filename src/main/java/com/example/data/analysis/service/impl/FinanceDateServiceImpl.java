@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,23 +38,40 @@ public class FinanceDateServiceImpl extends ServiceImpl<FinanceDateMapper, Finan
     @Override
     public List<FinanceList> getFinanceDate(String financeType,List<String> companyNo,String keepDate) {
         List<String> companyNos = new ArrayList<>();
-        if(null != companyNo && !companyNo.isEmpty()){
-            Company company = companyService.getOne(Wrappers.<Company>query().lambda().in(Company::getCompanyNo, companyNo));
-            if (null== company){
-                return null;
-            }
-            List<Company> list = companyService.list(Wrappers.<Company>query().lambda().eq(Company::getHighCompanyId, company.getId()));
-            companyNos = list.stream().filter(str -> str.getCompanyNo()!=null).map(Company::getCompanyNo).collect(Collectors.toList());
+        companyNo = new ArrayList<>();
+        if (companyNo.size()<1 && (financeType.equals("03") || financeType.equals("04"))){
+            companyNo.add("lhjt");
         }
-        List<FinanceList> financeDates = financeDateMapper.selectListFinanceDate(financeType,companyNos,keepDate);
+//        if(null != companyNo && !companyNo.isEmpty()){
+//            Company company = companyService.getOne(Wrappers.<Company>query().lambda().in(Company::getCompanyNo, companyNo));
+//            if (null== company){
+//                return null;
+//            }
+//            List<Company> list = companyService.list(Wrappers.<Company>query().lambda().eq(Company::getHighCompanyId, company.getId()));
+//            companyNos = list.stream().filter(str -> str.getCompanyNo()!=null).map(Company::getCompanyNo).collect(Collectors.toList());
+//        }
+        List<FinanceList> financeDates = financeDateMapper.selectListFinanceDate(financeType,companyNo,keepDate);
+        String typeNo = "07";
+        if (financeType.equals("04")){
+            typeNo = "08";
+            financeDates.addAll(financeDateMapper.selectListFinanceDate(typeNo, companyNo, keepDate));
+        }else if (financeType.equals("03")){
+            financeDates.addAll(financeDateMapper.selectListFinanceDate(typeNo, companyNo, keepDate));
+        }
+
+        financeDates.sort(Comparator.comparing(FinanceList::getLevel));
+
         if (financeDates.size()>0) {
             for (FinanceList dto: financeDates){
-                if (!dto.getLevel().equals("0")) {
+                if ((dto.getTypeNo().equals("07")||dto.getTypeNo().equals("08"))&&dto.getCompanyNo().equals("lhjt")){
+                    dto.setCompanyName("扬州地区");
+                }
+                if (!dto.getLevel().equals("0") || (financeType.equals("03") || financeType.equals("04"))) {
                     Company company = companyService.getOne(Wrappers.<Company>query().lambda().eq(Company::getCompanyNo, dto.getCompanyNo()));
                     List<Company> list = companyService.list(Wrappers.<Company>query().lambda().eq(Company::getHighCompanyId, company.getId()));
                     companyNos = list.stream().filter(str -> str.getCompanyNo() != null).map(Company::getCompanyNo).collect(Collectors.toList());
                     if (companyNos.size()>0){
-                        List<FinanceList> subCompany = financeDateMapper.selectListFinanceDate(financeType, companyNos, keepDate);
+                        List<FinanceList> subCompany = financeDateMapper.selectListFinanceDate(dto.getTypeNo(), companyNos, keepDate);
                         dto.setSubCompany(subCompany);
                     }
 
