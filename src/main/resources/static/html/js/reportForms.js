@@ -18,7 +18,7 @@ document.querySelectorAll('.sidebar a').forEach(link => {
 // 从后端获取数据
 function fetchData() {
     // 这里需要替换为实际的后端 API 地址
-    const apiUrl = 'your_backend_api_url';
+    const apiUrl = '/finance/data';
 
     fetch(apiUrl)
         .then(response => {
@@ -83,4 +83,49 @@ function renderDataTable(data) {
 
         tableBody.appendChild(row);
     });
+
+// 获取表格主体元素
+    const dataTableBody = document.getElementById('dataTableBody');
+
+// 从后端获取数据
+    fetch('/finance/data')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('网络响应不正常');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // 遍历数据列表
+            data.forEach((rowData, index) => {
+                // 创建表格行
+                const row = document.createElement('tr');
+
+                // 添加序号单元格
+                const indexCell = document.createElement('td');
+                indexCell.textContent = index + 1;
+                row.appendChild(indexCell);
+
+                // 定义列顺序
+                const columns = [
+                    '营业收入_本期', '营业收入_同期',
+                    '利润总额_本期', '利润总额_同期',
+                    '实现税金_本期', '实现税金_同期',
+                    '入库税金_本期', '入库税金_同期'
+                ];
+
+                // 遍历每个数据项
+                columns.forEach(column => {
+                    const cell = document.createElement('td');
+                    cell.textContent = rowData[column];
+                    row.appendChild(cell);
+                });
+
+                // 将行添加到表格主体中
+                dataTableBody.appendChild(row);
+            });
+        })
+        .catch(error => console.error('获取数据时出错:', error));
+
+
 }

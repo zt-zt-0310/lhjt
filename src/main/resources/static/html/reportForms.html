@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 
 <head>
   <meta charset="UTF-8">
@@ -71,18 +71,122 @@
 
 <div class="main">
   <h1>联环集团数据报表</h1>
-  <table id="dataTable">
+  <!-- 添加文件上传表单 -->
+  <form action="/finance/upload" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" />
+    <input type="submit" value="上传 Excel 文件" />
+  </form>
+<!--  <table id="dataTable">-->
+<!--    <thead>-->
+<!--    <tr>-->
+<!--      <th>项目</th>-->
+<!--      <th>营业收入_本期</th>-->
+<!--      <th>营业收入_同期</th>-->
+<!--      <th>利润总额_本期</th>-->
+<!--      <th>利润总额_同期</th>-->
+<!--      <th>实现税金_本期</th>-->
+<!--      <th>实现税金_同期</th>-->
+<!--      <th>入库税金_本期</th>-->
+<!--      <th>入库税金_同期</th>-->
+<!--    </tr>-->
+<!--    </thead>-->
+  <div id="loading">Loading data...</div>
+  <table id="financeTable" style="display: none;">
     <thead>
     <tr>
-      <th></th>
-      <th colspan="2">营业收入</th>
-      <th colspan="2">利润总额</th>
-      <th colspan="2">实现税金</th>
-      <th colspan="2">入库税金</th>
+      <th>公司名称</th>
+      <th>类型</th>
+      <th>本月数</th>
+      <th>去年同期金额</th>
+      <th>去年累计金额</th>
+      <th>今年累计金额</th>
+      <th>月增减额</th>
+      <th>月增减率</th>
+      <th>年增减额</th>
+      <th>年增减率</th>
+      <th>记账日期</th>
+<!--      <th>Remarks</th>-->
     </tr>
     </thead>
-    <tbody id="dataTableBody"></tbody>
+    <tbody id="dataBody"></tbody>
   </table>
+  <div id="error" style="color: red; display: none;"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      fetch('/finance/data')
+              .then(response => {
+                if (!response.ok) {
+                  throw new Error('Network response was not ok');
+                }
+                return response.json();
+              })
+              .then(data => {
+                // 隐藏加载提示，显示表格
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('financeTable').style.display = 'table';
+
+                const dataBody = document.getElementById('dataBody');
+                data.data.forEach(financeDate => {
+                  const row = document.createElement('tr');
+
+                  // 创建单元格并填充数据
+                  row.innerHTML = `
+                            <td>${financeDate.companyName}</td>
+                            <td>${getTypeDescription(financeDate.typeNo)}</td>
+                            <td>${financeDate.currentAmt}</td>
+                            <td>${financeDate.lastYearAmt}</td>
+                            <td>${financeDate.lastYearTotalAmt}</td>
+                            <td>${financeDate.thisYearTotalAmt}</td>
+                            <td>${financeDate.addAmt}</td>
+                            <td>${financeDate.addRate}</td>
+                            <td>${financeDate.yearAddAmt}</td>
+                            <td>${financeDate.yearAddRate}</td>
+                            <td>${formatDate(financeDate.keepDate)}</td>
+<!--                            <td>${financeDate.remarks}</td>-->
+                        `;
+
+                  dataBody.appendChild(row);
+                });
+              })
+              .catch(error => {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error').textContent = 'Error loading data: ' + error.message;
+                console.error('Error:', error);
+              });
+    });
+
+    // 日期格式化函数
+    function formatDate(dateString) {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      return date.toISOString().slice(0, 19).replace('T', ' ');
+    }
+    // Type No转换函数
+    function getTypeDescription(typeNo) {
+      if (typeNo==="01"){
+        return "营业收入"
+      }else if (typeNo==="02"){
+        return "利润总额"
+      }else if (typeNo==="03"){
+        return "实现税金"
+      }else if (typeNo==="04"){
+        return "入库税金"
+      }else if (typeNo==="05"){
+        return "所得税"
+      }else if (typeNo==="06"){
+        return "净利润"
+      }else if (typeNo==="07"){
+        return "实现税金(扬州地区)"
+      }else if (typeNo==="08"){
+        return "入库税金(扬州地区)"
+      }
+      return  typeNo; // 如果找不到映射，返回原始值
+    }
+
+
+  </script>
 </div>
 </body>
 <script src="js/reportForms.js"></script>

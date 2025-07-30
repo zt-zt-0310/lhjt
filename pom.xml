@@ -36,6 +36,20 @@
             <version>0.11.5</version>
         </dependency>
 
+
+            <!-- Spring Web -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+            </dependency>
+            <!-- Apache POI for Excel processing -->
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml</artifactId>
+                <version>5.2.3</version>
+            </dependency>
+
+
         <!--swagger-->
         <dependency>
             <groupId>io.springfox</groupId>
@@ -145,14 +159,14 @@
 <!--                    <mainClass>com.example.data.analysis.DataAnalysisProjectApplication</mainClass>-->
 <!--                    <skip>true</skip>-->
 <!--                </configuration>-->
-                <executions>
-                    <execution>
-<!--                        <id>repackage</id>-->
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--&lt;!&ndash;                        <id>repackage</id>&ndash;&gt;-->
+<!--                        <goals>-->
+<!--                            <goal>repackage</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
             </plugin>
         </plugins>
     </build>

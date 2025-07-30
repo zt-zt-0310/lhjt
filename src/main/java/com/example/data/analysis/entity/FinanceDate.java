@@ -76,7 +76,7 @@ public class FinanceDate extends BaseEntity<FinanceDate> implements Serializable
      * 记账日期
      */
     @JsonFormat(
-            pattern = "yyyy-MM-dd HH:mm:ss"
+            pattern = "yyyy-MM-dd"
     )
     private Date keepDate;
 

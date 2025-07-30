@@ -27,7 +27,7 @@
             <if test="typeNo !='' and typeNo !=null ">
                 AND f.type_no = #{typeNo}
             </if>
-            <if test=" companyNos.size > 0 ">
+            <if test="companyNos !=null and companyNos.size > 0 ">
                 AND f.company_no in
                 <foreach collection="companyNos" item="companyNo" index="index" open="(" close=")" separator=",">
                     #{companyNo}
