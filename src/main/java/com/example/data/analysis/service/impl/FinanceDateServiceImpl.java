@@ -61,7 +61,7 @@ public class FinanceDateServiceImpl extends ServiceImpl<FinanceDateMapper, Finan
 
         financeDates.sort(Comparator.comparing(FinanceList::getLevel));
 
-        if (financeDates.size()>0) {
+        if (!financeDates.isEmpty()) {
             for (FinanceList dto: financeDates){
                 if ((dto.getTypeNo().equals("07")||dto.getTypeNo().equals("08"))&&dto.getCompanyNo().equals("lhjt")){
                     dto.setCompanyName("扬州地区");
@@ -70,7 +70,7 @@ public class FinanceDateServiceImpl extends ServiceImpl<FinanceDateMapper, Finan
                     Company company = companyService.getOne(Wrappers.<Company>query().lambda().eq(Company::getCompanyNo, dto.getCompanyNo()));
                     List<Company> list = companyService.list(Wrappers.<Company>query().lambda().eq(Company::getHighCompanyId, company.getId()));
                     companyNos = list.stream().filter(str -> str.getCompanyNo() != null).map(Company::getCompanyNo).collect(Collectors.toList());
-                    if (companyNos.size()>0){
+                    if (!companyNos.isEmpty()){
                         List<FinanceList> subCompany = financeDateMapper.selectListFinanceDate(dto.getTypeNo(), companyNos, keepDate);
                         dto.setSubCompany(subCompany);
                     }
@@ -106,6 +106,7 @@ public class FinanceDateServiceImpl extends ServiceImpl<FinanceDateMapper, Finan
         List<String> com = new ArrayList<>();
         com = companieIds.stream().filter(str -> str.getCompanyNo()!=null).map(Company::getCompanyNo).collect(Collectors.toList());
         companyNos.add("lhjt");
+        companyNos.add("lhjtdt");
         companyNos.addAll(com);
         List<FinanceList> financeListQts = financeDateMapper.getFinanceDateGraphQt(financeType,companyNos,keepDate);
         if (financeListQts.get(0) == null){

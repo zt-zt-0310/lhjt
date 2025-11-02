@@ -90,6 +90,7 @@ public class FinanceController {
         if (file.isEmpty()) {
             return IResponse.fail("请选择execl上传！");
         }
+        int  rowNum = 0;
         try {
             // 创建工作簿对象
             Workbook workbook = new XSSFWorkbook(file.getInputStream());
@@ -101,6 +102,8 @@ public class FinanceController {
             // 从第二行开始遍历（跳过第一行表头）
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 System.out.println("当前行数-----"+i);
+
+                rowNum++;
                 Row row = sheet.getRow(i);
                 FinanceDate financeDate = new FinanceDate();
                 financeDate.setCompanyNo( getCellValueAsString(row.getCell(2)));
@@ -126,7 +129,7 @@ public class FinanceController {
             return IResponse.success("文件上传成功！");
         } catch (IOException e) {
             e.printStackTrace();
-            return IResponse.fail("文件上传失败！");
+            return IResponse.fail("文件上传失败！请检查第 "+rowNum+" 数据是否正确！");
         }
     }
 

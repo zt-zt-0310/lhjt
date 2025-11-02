@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.data.analysis.mapper.ProductLedgerMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.example.data.analysis.entity.ProductLedger">
+        <id column="id" property="id" />
+        <result column="product_name" property="productName" />
+        <result column="approval_number" property="approvalNumber" />
+        <result column="approval_date" property="approvalDate" />
+        <result column="compay_id" property="compayId" />
+        <result column="compay_name" property="compayName" />
+        <result column="produce_workshop" property="produceWorkshop" />
+        <result column="transformation_date" property="transformationDate" />
+        <result column="production_status" property="productionStatus" />
+        <result column="sales_number" property="salesNumber" />
+        <result column="total_amount" property="totalAmount" />
+        <result column="year_sales_amount" property="yearSalesAmount" />
+        <result column="sales_amount" property="salesAmount" />
+        <result column="first_sales_amount" property="firstSalesAmount" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="del_flag" property="delFlag" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, product_name, approval_number, approval_date, compay_id, compay_name,
+        produce_workshop, transformation_date, production_status, sales_number,
+        total_amount, year_sales_amount, sales_amount, first_sales_amount,
+        create_time, update_by, update_time, del_flag
+    </sql>
+
+</mapper>
