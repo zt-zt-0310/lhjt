@@ -9,7 +9,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -21,7 +20,7 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @TableName("product_ledger")
-public class ProductLedger extends BaseEntity<FinanceType> implements Serializable  {
+public class ProductLedger extends BaseEntity<ProductLedger> implements Serializable  {
 
     /**
      * 主键
@@ -42,17 +41,30 @@ public class ProductLedger extends BaseEntity<FinanceType> implements Serializab
     /**
      * 批件日期（结题日期）
      */
-    private String approvalDate;
+    @JsonFormat(
+            pattern = "yyyy-MM-dd"
+    )
+    private Date approvalDate;
 
     /**
      * 公司id
      */
-    private Long compayId;
+    private Long companyId;
 
+    /**
+     * 公司编号
+     */
+    private String companyNo;
+
+
+    /**
+     * 应用领域
+     */
+    private String applicationField;
     /**
      * 转化公司
      */
-    private String compayName;
+    private String companyName;
 
     /**
      * 生产车间
@@ -62,10 +74,7 @@ public class ProductLedger extends BaseEntity<FinanceType> implements Serializab
     /**
      * 转化时间
      */
-    @JsonFormat(
-            pattern = "yyyy-MM-dd HH:mm:ss"
-    )
-    private Date transformationDate;
+    private String transformationDate;
 
     /**
      * 投产情况（排产、批量情况）
@@ -75,26 +84,26 @@ public class ProductLedger extends BaseEntity<FinanceType> implements Serializab
     /**
      * 销售数量（月度、季度）
      */
-    private BigDecimal salesNumber;
+    private String salesNumber;
 
     /**
      * 累计销售额
      */
-    private BigDecimal totalAmount;
+    private String totalAmount;
 
     /**
      * 年度总销售额
      */
-    private BigDecimal yearSalesAmount;
+    private String yearSalesAmount;
 
     /**
      * 销售金额（月度、季度）
      */
-    private BigDecimal salesAmount;
+    private String salesAmount;
 
     /**
      * 首次销售（起始月，销售额）
      */
-    private BigDecimal firstSalesAmount;
+    private String firstSalesAmount;
 
 }

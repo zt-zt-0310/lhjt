@@ -28,13 +28,15 @@ public class ProductLedgerController {
 
     private final ProductLedgerServiceImpl productLedgerService;
 
-    @PostMapping("/getFinanceType")
-    @ApiOperation(value = "获取报表列表",httpMethod = "POST")
-    public IResponse<?> getFinanceType(@RequestBody AssessmentIndicatorsCondition condition){
+    @PostMapping("/getLedgerList")
+    @ApiOperation(value = "获取产品台账列表",httpMethod = "POST")
+    public IResponse<?> getLedgerList(@RequestBody AssessmentIndicatorsCondition condition){
         IPage<ProductLedger> page = new Page<>(condition.getPageIndex(),condition.getPageSize());
 
 
-        return IResponse.success(productLedgerService.page(page, new QueryWrapper<ProductLedger>().lambda().eq(ProductLedger::getTransformationDate,condition.getKeepDate())));
+        return IResponse.success(productLedgerService.page(page, new QueryWrapper<ProductLedger>().lambda()
+                .eq(condition.getKeepDate()!=null && !condition.getKeepDate().isEmpty(),ProductLedger::getTransformationDate,condition.getKeepDate())
+                .eq(condition.getCompanyNo()!=null && !condition.getCompanyNo().isEmpty(),ProductLedger::getCompanyNo,condition.getCompanyNo())));
     }
 
 }
