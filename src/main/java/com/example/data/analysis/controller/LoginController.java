@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
  * @Description TODO
  * @Time 2024/11/25 15:30
  */
-@Api(description = "用户登录")
+@Api(tags = "用户登录")
 @AllArgsConstructor
 @RestController
 @RequestMapping("/login")

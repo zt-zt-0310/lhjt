@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @Description TODO
  * @Time 2025/1/17 18:59
  */
-@Api(description = "指标考核")
+@Api(tags = "app-指标考核")
 @AllArgsConstructor
 @RestController
 @RequestMapping("/assessmentIndicators")

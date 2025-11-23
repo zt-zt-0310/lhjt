@@ -3,7 +3,9 @@ package com.example.data.analysis.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.example.data.analysis.dto.FinanceList;
 import com.example.data.analysis.entity.FinanceDate;
+import com.example.data.analysis.mapper.FinanceDateMapper;
 import com.example.data.analysis.service.FinanceDateService;
 import com.example.data.analysis.utils.response.IResponse;
 import io.swagger.annotations.Api;
@@ -11,16 +13,28 @@ import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 财务数据管理控制器
  */
-@Api(description = "财务数据管理")
+@Api(tags = "app-财务数据管理")
 @AllArgsConstructor
 @RestController
 @RequestMapping("/financeDate")
 public class FinanceDateManageController {
 
     private final FinanceDateService financeDateService;
+    private final FinanceDateMapper financeDateMapper;
+    // 获取数据
+    @PostMapping("/dataList")
+    @ApiOperation(value = "获取财务全量数据数据", httpMethod = "POST")
+    public IResponse<List<FinanceList>> getData(@RequestParam(required = false) String keepDate) {
+        List<String> companyNos = new ArrayList<>();
+        List<FinanceList> list = financeDateMapper.selectListFinanceDate("",companyNos, keepDate);
+        return IResponse.success(list);
+    }
 
     @PostMapping("/add")
     @ApiOperation(value = "新增财务数据", httpMethod = "POST")

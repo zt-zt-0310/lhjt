@@ -26,7 +26,7 @@ import java.util.List;
  * @Description TODO
  * @Time 2024/11/15 13:58
  */
-@Api(description = "报表数据")
+@Api(tags = "app - 报表数据")
 @AllArgsConstructor
 @RestController
 @RequestMapping("/finance")
@@ -141,6 +141,13 @@ public class FinanceController {
         return IResponse.success(list);
     }
 
+    // 获取数据
+    @GetMapping("/dataList")
+    public IResponse getData(Date keepDate) {
+        List<String> companyNos = new ArrayList<>();
+        List<FinanceList> list = financeDateMapper.selectListFinanceDate("",companyNos, String.valueOf(keepDate));
+        return IResponse.success(list);
+    }
 
     private String getCellValueAsString(Cell cell) {
         if (cell == null) {

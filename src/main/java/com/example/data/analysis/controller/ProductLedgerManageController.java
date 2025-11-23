@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 /**
  * 产品台账管理控制器
  */
-@Api(description = "产品台账管理")
+@Api(tags = "产品台账管理")
 @AllArgsConstructor
 @RestController
 @RequestMapping("/productLedger")

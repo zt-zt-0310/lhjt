@@ -20,7 +20,7 @@ import java.util.List;
  * @Description TODO
  * @Time 2024/12/13 15:09
  */
-@Api(description = "公司信息")
+@Api(tags = "sys-公司信息")
 @AllArgsConstructor
 @RestController
 @RequestMapping("/company")

@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @Description TODO
  * @Time 2025/10/22 20:58
  */
-@Api(description = "产品台账")
+@Api(tags = "app-产品台账")
 @AllArgsConstructor
 @RestController
 @RequestMapping("/ledger")

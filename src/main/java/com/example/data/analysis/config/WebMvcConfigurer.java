@@ -12,9 +12,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
 
 @Configuration
 public class WebMvcConfigurer extends WebMvcConfigurationSupport {
+/**
+ * 重写添加资源处理器的方法
+ * 用于配置静态资源访问路径和API文档访问路径
+ * @param registry 资源处理器注册表，用于注册静态资源访问路径
+ */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
+    // 配置静态资源访问路径，所有请求/**都指向classpath:/static/目录
         registry.addResourceHandler("/**").addResourceLocations("classpath:/static/");
 
         /** 配置knife4j 显示文档 */

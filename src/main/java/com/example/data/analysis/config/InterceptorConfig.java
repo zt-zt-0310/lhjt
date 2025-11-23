@@ -15,8 +15,8 @@ public class InterceptorConfig extends WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(authenticationInterceptor())
-                .addPathPatterns("/api/**");
-//                .excludePathPatterns("/login/**");    // 拦截所有请求，通过判断是否有 @LoginRequired 注解 决定是否需要登录
+                .addPathPatterns("/**")
+                .excludePathPatterns("/login/**").excludePathPatterns("/financeDate/dataList");    // 拦截所有请求，通过判断是否有 @LoginRequired 注解 决定是否需要登录
     }
     @Bean
     public AuthenticationInterceptor authenticationInterceptor() {

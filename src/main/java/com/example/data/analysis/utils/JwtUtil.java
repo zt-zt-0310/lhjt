@@ -19,10 +19,11 @@ public class JwtUtil {
     private final String secretKey = "a8615aff9172c2531af36efb50de8185"; // 用于签署和验证令牌的密钥，请替换为自己的密钥
     private final Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
 
-    private final long validityInMilliseconds = 3600000; // 令牌有效期一小时
     //    private final long validityInMilliseconds = 60000; // 令牌有效期一分钟
     public String generateToken(String username,String password) {
         Date now = new Date();
+        // 令牌有效期一小时
+        long validityInMilliseconds = 3600000*24*7;
         Date validity = new Date(now.getTime() + validityInMilliseconds);
 
         return Jwts.builder()

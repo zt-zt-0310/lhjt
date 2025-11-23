@@ -9,12 +9,10 @@ import com.example.data.analysis.entity.FinanceDate;
 import com.example.data.analysis.mapper.FinanceDateMapper;
 import com.example.data.analysis.service.CompanyService;
 import com.example.data.analysis.service.FinanceDateService;
-import com.example.data.analysis.utils.ChatCompletionsExample;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -32,8 +30,8 @@ import java.util.stream.Collectors;
 public class FinanceDateServiceImpl extends ServiceImpl<FinanceDateMapper, FinanceDate> implements FinanceDateService {
     private final FinanceDateMapper financeDateMapper;
     private final CompanyService companyService;
-    @Resource
-    ChatCompletionsExample chatCompletions;
+//    @Resource
+//    ChatCompletionsExample chatCompletions;
 
     @Override
     public List<FinanceList> getFinanceDate(String financeType,List<String> companyNo,String keepDate) {
@@ -149,10 +147,11 @@ public class FinanceDateServiceImpl extends ServiceImpl<FinanceDateMapper, Finan
         }
         text = text+"。请帮我进行数据分析,只需要告诉我分析结果不要分析过程。";
         log.info(text);
-        String chatText = chatCompletions.chatCompletions(text);
-        DateAnalysisDto dto = new DateAnalysisDto();
-        dto.setFinanceLists(financeLists);
-        dto.setAnalysis(chatText);
-        return  dto;
+//        String chatText = chatCompletions.chatCompletions(text);
+//        DateAnalysisDto dto = new DateAnalysisDto();
+//        dto.setFinanceLists(financeLists);
+//        dto.setAnalysis(chatText);
+//        return  dto;
+        return null;
     }
 }

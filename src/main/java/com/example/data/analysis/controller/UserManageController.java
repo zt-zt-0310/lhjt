@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 /**
  * 用户管理控制器
  */
-@Api(description = "用户管理")
+@Api(tags = "用户管理")
 @AllArgsConstructor
 @RestController
 @RequestMapping("/user")
