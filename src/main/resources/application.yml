@@ -5,14 +5,17 @@ mybatis:
     classpath:  mappers/*xml
 #指定Mybatis的实体目录
   type-aliases-package: com.example.data.analysis.entity
+# Swagger 2.x（Springfox）常见配置
+#swagger:
+#  enabled: false # 确保当前环境（如dev）是true，prod可能为false
 
 spring:
   #配置 数据库
   datasource:
-#    username: root #本地测试环境用户名
-#    password: root #本地测试环境密码
-    username: root #用户名
-    password: Qwer123@ #密码
+    username: root #本地测试环境用户名
+    password: root #本地测试环境密码
+#    username: root #用户名
+#    password: Qwer123@ #密码
     url: jdbc:mysql://localhost:3306/analysis_data?useSSL=false&serverTimezone=UTC&&characterEncoding=utf-8&allowPublicKeyRetrieval=true
     driver-class-name: com.mysql.cj.jdbc.Driver
   #  配置JSP 路径

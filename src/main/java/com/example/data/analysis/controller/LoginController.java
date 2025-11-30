@@ -46,7 +46,7 @@ public class LoginController {
             return IResponse.fail("当前设备和账户不一致，请联系管理员！");
         }
         userService.updateById(one);
-        String token = jwtUtil.generateToken(one.getName(),one.getPassword());
+        String token = jwtUtil.generateToken(one.getName(),one.getPassword(),one.getId());
         LoginDate loginDate = new LoginDate();
         loginDate.setToken(token);
         return IResponse.success(loginDate);

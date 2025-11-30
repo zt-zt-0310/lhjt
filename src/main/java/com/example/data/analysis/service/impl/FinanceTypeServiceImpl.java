@@ -24,7 +24,6 @@ public class FinanceTypeServiceImpl extends ServiceImpl<FinanceTypeMapper, Finan
 
     @Override
     public List<FinanceType> getFinanceType() {
-        List<FinanceType> financeTypes = this.baseMapper.selectList(Wrappers.emptyWrapper());
-        return financeTypes;
+        return this.baseMapper.selectList(Wrappers.emptyWrapper());
     }
 }

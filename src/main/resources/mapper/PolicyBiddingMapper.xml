@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.data.analysis.mapper.PolicyBiddingMapper">
+
+    <select id="selectUnreadPolicy" resultType="com.example.data.analysis.dto.PolicyBiddingDto">
+        SELECT
+        pb.bidding_id id,
+        pb.title,
+        pb.translated_title,
+        pb.summary ,
+        pb.source_name ,
+        pb.publish_time ,
+        pb.category ,
+        pb.status ,
+        pb.tags ,
+        pb.source_url ,
+        pb.is_positive_policy ,
+        pb.company_name
+        FROM
+        policy_bidding pb
+        LEFT JOIN
+        read_bidding_log rbl
+        ON pb.id = rbl.biding_id
+        AND rbl.user_id = #{userId}
+        AND rbl.del_flag = '0'
+        WHERE
+        rbl.id IS NULL
+        <if test="category != null and category != ''">
+            AND pb.category = #{category}
+        </if>
+        ORDER BY
+        pb.publish_time DESC
+    </select>
+</mapper>
