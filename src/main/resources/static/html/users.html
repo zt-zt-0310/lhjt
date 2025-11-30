@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>用户管理</title>
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <style>
     body {
       margin: 0;
@@ -45,8 +45,7 @@
       width: 100%;
     }
 
-    th,
-    td {
+    th, td {
       border: 1px solid #ddd;
       padding: 8px;
       text-align: left;
@@ -55,9 +54,94 @@
     th {
       background-color: #f2f2f2;
     }
+
+    .operation-bar {
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+    }
+
+    .search-box input {
+      padding: 6px;
+      margin-right: 5px;
+    }
+
+    .btn {
+      padding: 6px 12px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: #45a049;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 100;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 10% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 60%;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+    }
+
+    .pagination {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .pagination button {
+      margin: 0 5px;
+      padding: 5px 10px;
+    }
   </style>
 </head>
-
 <body>
 <!-- 引入公共菜单 -->
 <div id="menu-placeholder"></div>
@@ -70,19 +154,288 @@
 </script>
 
 <div class="main">
-  <h2>用户管理</h2>
-  <table id="user-table">
+  <h1>用户管理</h1>
+
+  <div class="operation-bar">
+    <button class="btn" id="add-user-btn">
+      <i class="fa fa-plus"></i> 新增用户
+    </button>
+    <div class="search-box">
+      <input type="text" placeholder="搜索用户名..." id="user-search">
+      <button class="btn" id="search-btn">
+        <i class="fa fa-search"></i> 搜索
+      </button>
+    </div>
+  </div>
+
+  <table>
     <thead>
     <tr>
       <th>ID</th>
       <th>用户名</th>
-      <th>邮箱</th>
+      <th>登录名</th>
+      <th>电话</th>
+      <th>部门ID</th>
+      <th>设备编号</th>
       <th>操作</th>
     </tr>
     </thead>
-    <tbody></tbody>
+    <tbody id="user-table-body">
+    <!-- 数据将通过JS动态加载 -->
+    </tbody>
   </table>
-</div>
-</body>
 
+  <div class="pagination" id="user-pagination">
+    <!-- 分页将通过JS动态生成 -->
+  </div>
+</div>
+
+<!-- 新增/编辑用户模态框 -->
+<div id="user-modal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2 id="user-modal-title">新增用户</h2>
+    <form id="user-form">
+      <input type="hidden" id="user-id">
+      <div class="form-group">
+        <label for="name">用户名</label>
+        <input type="text" id="name" required>
+      </div>
+      <div class="form-group">
+        <label for="loginName">登录名</label>
+        <input type="text" id="loginName" required>
+      </div>
+      <div class="form-group">
+        <label for="password">密码</label>
+        <input type="password" id="password" placeholder="新增用户需填写，编辑可留空">
+      </div>
+      <div class="form-group">
+        <label for="phone">电话</label>
+        <input type="tel" id="phone">
+      </div>
+      <div class="form-group">
+        <label for="deptId">部门ID</label>
+        <input type="text" id="deptId">
+      </div>
+      <div class="form-group">
+        <label for="equipmentNo">设备编号</label>
+        <input type="text" id="equipmentNo">
+      </div>
+      <div class="form-group">
+        <button type="button" class="btn" id="save-user">保存</button>
+        <button type="button" class="btn" id="cancel-user" style="background-color: #f44336;">取消</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // 初始化配置
+  const DEFAULT_PAGE_INDEX = 1;
+  const DEFAULT_PAGE_SIZE = 10;
+
+  // 页面加载时加载数据
+  document.addEventListener('DOMContentLoaded', function() {
+    loadUserList(DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE);
+
+    // 绑定事件
+    document.getElementById('add-user-btn').addEventListener('click', showAddUserModal);
+    document.getElementById('search-btn').addEventListener('click', function() {
+      loadUserList(DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE);
+    });
+    document.getElementById('save-user').addEventListener('click', saveUser);
+    document.getElementById('cancel-user').addEventListener('click', closeUserModal);
+    document.querySelector('.close').addEventListener('click', closeUserModal);
+
+    // 点击模态框外部关闭
+    window.addEventListener('click', function(event) {
+      const modal = document.getElementById('user-modal');
+      if (event.target == modal) {
+        closeUserModal();
+      }
+    });
+  });
+
+  // 加载用户列表
+  function loadUserList(pageIndex, pageSize) {
+    const keyword = document.getElementById('user-search').value.trim();
+    fetch(`/api/user/list?pageIndex=${pageIndex}&pageSize=${pageSize}&keyword=${encodeURIComponent(keyword)}`)
+            .then(response => {
+              if (!response.ok) throw new Error('网络请求失败');
+              return response.json();
+            })
+            .then(data => {
+              if (data.success && data.data) {
+                renderUserTable(data.data.records);
+                renderPagination(data.data.total, pageIndex, pageSize);
+              } else {
+                alert('加载数据失败');
+              }
+            })
+            .catch(error => console.error('加载失败:', error));
+  }
+
+  // 渲染用户表格
+  function renderUserTable(users) {
+    const tbody = document.getElementById('user-table-body');
+    tbody.innerHTML = '';
+
+    if (!users || users.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">暂无数据</td></tr>';
+      return;
+    }
+
+    users.forEach(user => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${user.id}</td>
+        <td>${user.name}</td>
+        <td>${user.loginName}</td>
+        <td>${user.phone || '-'}</td>
+        <td>${user.deptId || '-'}</td>
+        <td>${user.equipmentNo || '-'}</td>
+        <td>
+          <button class="btn" style="background-color: #2196F3;" onclick="editUser(${user.id})">编辑</button>
+          <button class="btn" style="background-color: #f44336;" onclick="deleteUser(${user.id})">删除</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // 渲染分页
+  function renderPagination(total, currentPage, pageSize) {
+    const paginationContainer = document.getElementById('user-pagination');
+    paginationContainer.innerHTML = '';
+
+    if (total === 0) return;
+
+    const totalPages = Math.ceil(total / pageSize);
+
+    // 上一页
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = '上一页';
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.addEventListener('click', () => {
+      if (currentPage > 1) {
+        loadUserList(currentPage - 1, pageSize);
+      }
+    });
+    paginationContainer.appendChild(prevBtn);
+
+    // 页码
+    for (let i = 1; i <= totalPages; i++) {
+      const pageBtn = document.createElement('button');
+      pageBtn.textContent = i;
+      if (i === currentPage) {
+        pageBtn.style.backgroundColor = '#4CAF50';
+        pageBtn.style.color = 'white';
+      }
+      pageBtn.addEventListener('click', () => loadUserList(i, pageSize));
+      paginationContainer.appendChild(pageBtn);
+    }
+
+    // 下一页
+    const nextBtn = document.createElement('button');
+    nextBtn.textContent = '下一页';
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.addEventListener('click', () => {
+      if (currentPage < totalPages) {
+        loadUserList(currentPage + 1, pageSize);
+      }
+    });
+    paginationContainer.appendChild(nextBtn);
+  }
+
+  // 显示新增用户模态框
+  function showAddUserModal() {
+    document.getElementById('user-modal-title').textContent = '新增用户';
+    document.getElementById('user-form').reset();
+    document.getElementById('user-id').value = '';
+    document.getElementById('user-modal').style.display = 'block';
+  }
+
+  // 编辑用户
+  function editUser(id) {
+    fetch(`/api/user/get/${id}`)
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                const user = data.data;
+                document.getElementById('user-modal-title').textContent = '编辑用户';
+                document.getElementById('user-id').value = user.id;
+                document.getElementById('name').value = user.name;
+                document.getElementById('loginName').value = user.loginName;
+                document.getElementById('phone').value = user.phone || '';
+                document.getElementById('deptId').value = user.deptId || '';
+                document.getElementById('equipmentNo').value = user.equipmentNo || '';
+                // 密码清空，编辑时可选择不修改
+                document.getElementById('password').value = '';
+                document.getElementById('user-modal').style.display = 'block';
+              }
+            });
+  }
+
+  // 保存用户
+  function saveUser() {
+    const userId = document.getElementById('user-id').value;
+    const userData = {
+      name: document.getElementById('name').value,
+      loginName: document.getElementById('loginName').value,
+      phone: document.getElementById('phone').value,
+      deptId: document.getElementById('deptId').value,
+      equipmentNo: document.getElementById('equipmentNo').value
+    };
+
+    // 只有填写了密码才添加到数据中（编辑时可以不修改密码）
+    const password = document.getElementById('password').value;
+    if (password) {
+      userData.password = password;
+    }
+
+    const url = userId ? `/api/user/update` : `/api/user/add`;
+    const method = userId ? 'PUT' : 'POST';
+
+    fetch(url, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(userId ? {...userData, id: parseInt(userId)} : userData)
+    })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                closeUserModal();
+                loadUserList(DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE);
+                alert(userId ? '用户更新成功' : '用户添加成功');
+              } else {
+                alert('操作失败: ' + (data.message || '未知错误'));
+              }
+            })
+            .catch(error => console.error('Error saving user:', error));
+  }
+
+  // 删除用户
+  function deleteUser(id) {
+    if (confirm('确定要删除这个用户吗？')) {
+      fetch(`/api/user/delete/${id}`, { method: 'DELETE' })
+              .then(response => response.json())
+              .then(data => {
+                if (data.success) {
+                  loadUserList(DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE);
+                  alert('删除成功');
+                } else {
+                  alert('删除失败');
+                }
+              });
+    }
+  }
+
+  // 关闭模态框
+  function closeUserModal() {
+    document.getElementById('user-modal').style.display = 'none';
+  }
+</script>
+</body>
 </html>

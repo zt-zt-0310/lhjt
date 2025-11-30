@@ -72,12 +72,31 @@
 <!-- index.html -->
 <div class="sidebar">
     <a href="reportForms.html">数据报表</a>
-<!--    <a href="company.html">公司管理</a>-->
-<!--    <a href="tabDate.html">数据类型关联</a>-->
-<!--    <a href="users.html">用户管理</a>-->
-<!--    <a href="settings.html">设置</a>-->
+    <a href="company.html">公司管理</a>
+    <a href="product-ledger.html">产品台账</a>
+    <a href="users.html">用户管理</a>
+    <a href="settings.html">设置</a>
 </div>
+<script>
+    // 退出登录功能
+    function logout() {
+        if (confirm('确定要退出登录吗？')) {
+            // 清除登录状态（如Token）
+            localStorage.removeItem('token');
+            // 跳转到登录页（假设登录页为login.html）
+            window.location.href = '/static/login.html';
+        }
+    }
 
+    // 页面加载时验证登录状态
+    document.addEventListener('DOMContentLoaded', function() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('请先登录！');
+            window.location.href = '/static/login.html';
+        }
+    });
+</script>
 </body>
 
 </html>

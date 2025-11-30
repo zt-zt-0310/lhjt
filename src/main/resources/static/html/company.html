@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>公司管理</title>
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <style>
     body {
       margin: 0;
@@ -55,6 +56,92 @@
     th {
       background-color: #f2f2f2;
     }
+
+    .operation-bar {
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+    }
+
+    .search-box input {
+      padding: 6px;
+      margin-right: 5px;
+    }
+
+    .btn {
+      padding: 6px 12px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: #45a049;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 100;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 10% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 60%;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+    }
+
+    .pagination {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .pagination button {
+      margin: 0 5px;
+      padding: 5px 10px;
+    }
   </style>
 </head>
 
@@ -71,19 +158,262 @@
 
 <div class="main">
   <h2>公司管理</h2>
+
+  <div class="operation-bar">
+    <button class="btn" id="add-company-btn">
+      <i class="fa fa-plus"></i> 新增公司
+    </button>
+    <div class="search-box">
+      <input type="text" placeholder="搜索公司名称..." id="company-search">
+      <button class="btn" id="search-btn">
+        <i class="fa fa-search"></i> 搜索
+      </button>
+    </div>
+  </div>
+
   <table id="company-table">
     <thead>
     <tr>
       <th>公司ID</th>
       <th>公司名称</th>
-      <th>联系人</th>
-      <th>联系电话</th>
+<!--      <th>联系人</th>-->
+<!--      <th>联系电话</th>-->
       <th>操作</th>
     </tr>
     </thead>
-    <tbody></tbody>
+    <tbody id="company-table-body">
+    <!-- 数据将通过JS动态加载 -->
+    </tbody>
   </table>
-</div>
-</body>
 
+  <div class="pagination" id="company-pagination">
+    <!-- 分页将通过JS动态生成 -->
+  </div>
+</div>
+
+<!-- 新增/编辑公司模态框 -->
+<div id="company-modal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2 id="modal-title">新增公司</h2>
+    <form id="company-form">
+      <input type="hidden" id="company-id">
+      <div class="form-group">
+        <label for="companyName">公司名称</label>
+        <input type="text" id="companyName" required>
+      </div>
+<!--      <div class="form-group">-->
+<!--        <label for="contactPerson">联系人</label>-->
+<!--        <input type="text" id="contactPerson" required>-->
+<!--      </div>-->
+<!--      <div class="form-group">-->
+<!--        <label for="contactPhone">联系电话</label>-->
+<!--        <input type="tel" id="contactPhone" required>-->
+<!--      </div>-->
+      <div class="form-group">
+        <button type="button" class="btn" id="save-company">保存</button>
+        <button type="button" class="btn" id="cancel-company" style="background-color: #f44336;">取消</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // 初始化配置
+  const DEFAULT_PAGE_INDEX = 1;
+  const DEFAULT_PAGE_SIZE = 10;
+
+  // 页面加载时加载数据
+  document.addEventListener('DOMContentLoaded', function() {
+    loadCompanyList(DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE);
+
+    // 绑定事件
+    document.getElementById('add-company-btn').addEventListener('click', showAddCompanyModal);
+    document.getElementById('search-btn').addEventListener('click', function() {
+      loadCompanyList(DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE);
+    });
+    document.getElementById('save-company').addEventListener('click', saveCompany);
+    document.getElementById('cancel-company').addEventListener('click', closeCompanyModal);
+    document.querySelector('.close').addEventListener('click', closeCompanyModal);
+
+    // 点击模态框外部关闭
+    window.addEventListener('click', function(event) {
+      const modal = document.getElementById('company-modal');
+      if (event.target == modal) {
+        closeCompanyModal();
+      }
+    });
+  });
+
+  // 加载公司列表
+  function loadCompanyList(pageIndex, pageSize) {
+    const keyword = document.getElementById('company-search').value.trim();
+    fetch(`/company/selectCompanyAll?pageIndex=${pageIndex}&pageSize=${pageSize}`)
+            .then(response => {
+              if (!response.ok) throw new Error('网络请求失败');
+              return response.json();
+            })
+            .then(data => {
+              debugger
+              console.log("wwwwwwwwwwwww111",data)
+              if ("0000"  === data.code && data.data) {
+
+                renderCompanyTable(data.data.records);
+                renderPagination(data.data.total, pageIndex, pageSize);
+              } else {
+                alert('加载数据失败');
+              }
+            })
+            .catch(error => console.error('加载失败:', error));
+  }
+
+  // 渲染公司表格
+  function renderCompanyTable(companies) {
+    const tbody = document.getElementById('company-table-body');
+    tbody.innerHTML = '';
+
+    if (!companies || companies.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">暂无数据</td></tr>';
+      return;
+    }
+
+    companies.forEach(company => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${company.id}</td>
+        <td>${company.companyName}</td>
+    <!--    <td>${company.contactPerson}</td>
+        <td>${company.contactPhone}</td> -->
+        <td>
+          <button class="btn" style="background-color: #2196F3;" onclick="editCompany(${company.id})">编辑</button>
+          <button class="btn" style="background-color: #f44336;" onclick="deleteCompany(${company.id})">删除</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // 渲染分页
+  function renderPagination(total, currentPage, pageSize) {
+    const paginationContainer = document.getElementById('company-pagination');
+    paginationContainer.innerHTML = '';
+
+    if (total === 0) return;
+
+    const totalPages = Math.ceil(total / pageSize);
+
+    // 上一页
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = '上一页';
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.addEventListener('click', () => {
+      if (currentPage > 1) {
+        loadCompanyList(currentPage - 1, pageSize);
+      }
+    });
+    paginationContainer.appendChild(prevBtn);
+
+    // 页码
+    for (let i = 1; i <= totalPages; i++) {
+      const pageBtn = document.createElement('button');
+      pageBtn.textContent = i;
+      if (i === currentPage) {
+        pageBtn.style.backgroundColor = '#4CAF50';
+        pageBtn.style.color = 'white';
+      }
+      pageBtn.addEventListener('click', () => loadCompanyList(i, pageSize));
+      paginationContainer.appendChild(pageBtn);
+    }
+
+    // 下一页
+    const nextBtn = document.createElement('button');
+    nextBtn.textContent = '下一页';
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.addEventListener('click', () => {
+      if (currentPage < totalPages) {
+        loadCompanyList(currentPage + 1, pageSize);
+      }
+    });
+    paginationContainer.appendChild(nextBtn);
+  }
+
+  // 显示新增公司模态框
+  function showAddCompanyModal() {
+    document.getElementById('modal-title').textContent = '新增公司';
+    document.getElementById('company-form').reset();
+    document.getElementById('company-id').value = '';
+    document.getElementById('company-modal').style.display = 'block';
+  }
+
+  // 编辑公司
+  function editCompany(id) {
+    fetch(`/company/get/${id}`)
+            .then(response => response.json())
+            .then(data => {
+              if ("0000"  === data.code) {
+                const company = data.data;
+                document.getElementById('modal-title').textContent = '编辑公司';
+                document.getElementById('company-id').value = company.id;
+                document.getElementById('companyName').value = company.companyName;
+                // document.getElementById('contactPerson').value = company.contactPerson;
+                // document.getElementById('contactPhone').value = company.contactPhone;
+                document.getElementById('company-modal').style.display = 'block';
+              }
+            });
+  }
+
+  // 保存公司
+  function saveCompany() {
+    const companyId = document.getElementById('company-id').value;
+    const companyData = {
+      companyName: document.getElementById('companyName').value,
+      // contactPerson: document.getElementById('contactPerson').value,
+      // contactPhone: document.getElementById('contactPhone').value
+    };
+
+    const url = companyId ? `/api/company/update` : `/api/company/add`;
+    const method = companyId ? 'PUT' : 'POST';
+
+    fetch(url, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(companyId ? {...companyData, id: parseInt(companyId)} : companyData)
+    })
+            .then(response => response.json())
+            .then(data => {
+              if ("0000"  === data.code) {
+                closeCompanyModal();
+                loadCompanyList(DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE);
+                alert(companyId ? '公司更新成功' : '公司添加成功');
+              } else {
+                alert('操作失败: ' + (data.message || '未知错误'));
+              }
+            })
+            .catch(error => console.error('Error saving company:', error));
+  }
+
+  // 删除公司
+  function deleteCompany(id) {
+    if (confirm('确定要删除这个公司吗？')) {
+      fetch(`/api/company/delete/${id}`, { method: 'DELETE' })
+              .then(response => response.json())
+              .then(data => {
+                if ("0000"  === data.code) {
+                  loadCompanyList(DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE);
+                  alert('删除成功');
+                } else {
+                  alert('删除失败');
+                }
+              });
+    }
+  }
+
+  // 关闭模态框
+  function closeCompanyModal() {
+    document.getElementById('company-modal').style.display = 'none';
+  }
+</script>
+</body>
 </html>

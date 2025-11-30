@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>产品台账管理</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .sidebar {
+            height: 100%;
+            width: 200px;
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            background-color: #333;
+            overflow-x: hidden;
+            padding-top: 20px;
+        }
+
+        .sidebar a {
+            padding: 6px 8px 6px 16px;
+            text-decoration: none;
+            font-size: 20px;
+            color: #f1f1f1;
+            display: block;
+        }
+
+        .sidebar a:hover {
+            color: #818181;
+        }
+
+        .main {
+            margin-left: 200px;
+            padding: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .operation-bar {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+        }
+
+        .search-box input {
+            padding: 6px;
+            margin-right: 5px;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #45a049;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 60%;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        .pagination {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .pagination button {
+            margin: 0 5px;
+            padding: 5px 10px;
+        }
+
+        .required {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<!-- 引入公共菜单 -->
+<div id="menu-placeholder"></div>
+<script>
+    fetch('index.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('menu-placeholder').innerHTML = data;
+        });
+</script>
+
+<div class="main">
+    <h1>产品台账管理</h1>
+
+    <div class="operation-bar">
+        <button class="btn" id="add-btn">
+            <i class="fa fa-plus"></i> 新增台账
+        </button>
+        <div class="search-box">
+            <input type="text" placeholder="搜索产品名称/批准文号..." id="ledger-search">
+            <button class="btn" id="search-btn">
+                <i class="fa fa-search"></i> 搜索
+            </button>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>产品名称</th>
+            <th>批准文号</th>
+            <th>批件日期</th>
+            <th>公司名称</th>
+            <th>规格型号</th>
+            <th>状态</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody id="ledger-table-body">
+        <!-- 数据将通过JS动态加载 -->
+        </tbody>
+    </table>
+
+    <div class="pagination" id="ledger-pagination">
+        <!-- 分页将通过JS动态生成 -->
+    </div>
+</div>
+
+<!-- 新增/编辑模态框 -->
+<div id="ledger-modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 id="modal-title">新增产品台账</h2>
+        <form id="ledger-form">
+            <input type="hidden" id="ledger-id">
+            <div class="form-group">
+                <label for="productName">产品名称 <span class="required">*</span></label>
+                <input type="text" id="productName" required>
+            </div>
+            <div class="form-group">
+                <label for="approvalNo">批准文号 <span class="required">*</span></label>
+                <input type="text" id="approvalNo" required>
+            </div>
+            <div class="form-group">
+                <label for="approvalDate">批件日期 <span class="required">*</span></label>
+                <input type="date" id="approvalDate" required>
+            </div>
+            <div class="form-group">
+                <label for="companyName">公司名称 <span class="required">*</span></label>
+                <input type="text" id="companyName" required>
+            </div>
+            <div class="form-group">
+                <label for="specs">规格型号</label>
+                <input type="text" id="specs">
+            </div>
+            <div class="form-group">
+                <label for="status">状态 <span class="required">*</span></label>
+                <select id="status" required>
+                    <option value="1">有效</option>
+                    <option value="2">过期</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button type="button" class="btn" id="save-btn">保存</button>
+                <button type="button" class="btn" id="cancel-btn" style="background-color: #f44336;">取消</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // 初始化配置
+    const DEFAULT_PAGE_INDEX = 1;
+    const DEFAULT_PAGE_SIZE = 10;
+
+    // 页面加载时加载数据
+    document.addEventListener('DOMContentLoaded', function() {
+        loadLedgerList(DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE);
+
+        // 绑定事件
+        document.getElementById('add-btn').addEventListener('click', showAddModal);
+        document.getElementById('search-btn').addEventListener('click', function() {
+            loadLedgerList(DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE);
+        });
+        document.getElementById('save-btn').addEventListener('click', saveLedger);
+        document.getElementById('cancel-btn').addEventListener('click', closeModal);
+        document.querySelector('.close').addEventListener('click', closeModal);
+
+        // 点击模态框外部关闭
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('ledger-modal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        });
+    });
+
+    // 加载产品台账列表
+    function loadLedgerList(pageIndex, pageSize) {
+        const keyword = document.getElementById('ledger-search').value.trim();
+        fetch(`/productLedger/list?pageIndex=${pageIndex}&pageSize=${pageSize}&keyword=${encodeURIComponent(keyword)}`)
+            .then(response => {
+                if (!response.ok) throw new Error('网络请求失败');
+                return response.json();
+            })
+            .then(data => {
+                if (data.success && data.data) {
+                    renderTable(data.data.records);
+                    renderPagination(data.data.total, pageIndex, pageSize);
+                } else {
+                    alert('加载数据失败');
+                }
+            })
+            .catch(error => console.error('加载失败:', error));
+    }
+
+    // 渲染表格
+    function renderTable(data) {
+        const tbody = document.getElementById('ledger-table-body');
+        tbody.innerHTML = '';
+
+        if (!data || data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">暂无数据</td></tr>';
+            return;
+        }
+
+        data.forEach(item => {
+            const tr = document.createElement('tr');
+            const statusText = item.status === 1 ? '<span style="color:green;">有效</span>' : '<span style="color:red;">过期</span>';
+
+            tr.innerHTML = `
+                <td>${item.id || '-'}</td>
+                <td>${item.productName || '-'}</td>
+                <td>${item.approvalNo || '-'}</td>
+                <td>${formatDate(item.approvalDate) || '-'}</td>
+                <td>${item.companyName || '-'}</td>
+                <td>${item.specs || '-'}</td>
+                <td>${statusText}</td>
+                <td>
+                    <button class="btn" style="background-color: #2196F3;" onclick="editLedger(${item.id})">编辑</button>
+                    <button class="btn" style="background-color: #f44336;" onclick="deleteLedger(${item.id})">删除</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // 渲染分页
+    function renderPagination(total, currentPage, pageSize) {
+        const paginationContainer = document.getElementById('ledger-pagination');
+        paginationContainer.innerHTML = '';
+
+        if (total === 0) return;
+
+        const totalPages = Math.ceil(total / pageSize);
+
+        // 上一页
+        const prevBtn = document.createElement('button');
+        prevBtn.textContent = '上一页';
+        prevBtn.disabled = currentPage === 1;
+        prevBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                loadLedgerList(currentPage - 1, pageSize);
+            }
+        });
+        paginationContainer.appendChild(prevBtn);
+
+        // 页码
+        for (let i = 1; i <= totalPages; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.textContent = i;
+            if (i === currentPage) {
+                pageBtn.style.backgroundColor = '#4CAF50';
+                pageBtn.style.color = 'white';
+            }
+            pageBtn.addEventListener('click', () => loadLedgerList(i, pageSize));
+            paginationContainer.appendChild(pageBtn);
+        }
+
+        // 下一页
+        const nextBtn = document.createElement('button');
+        nextBtn.textContent = '下一页';
+        nextBtn.disabled = currentPage === totalPages;
+        nextBtn.addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                loadLedgerList(currentPage + 1, pageSize);
+            }
+        });
+        paginationContainer.appendChild(nextBtn);
+    }
+
+    // 显示新增模态框
+    function showAddModal() {
+        document.getElementById('modal-title').textContent = '新增产品台账';
+        document.getElementById('ledger-form').reset();
+        document.getElementById('ledger-id').value = '';
+        document.getElementById('ledger-modal').style.display = 'block';
+    }
+
+    // 编辑
+    function editLedger(id) {
+        fetch(`/productLedger/get/${id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const item = data.data;
+                    document.getElementById('modal-title').textContent = '编辑产品台账';
+                    document.getElementById('ledger-id').value = item.id;
+                    document.getElementById('productName').value = item.productName;
+                    document.getElementById('approvalNo').value = item.approvalNo;
+                    document.getElementById('approvalDate').value = formatDateForInput(item.approvalDate);
+                    document.getElementById('companyName').value = item.companyName;
+                    document.getElementById('specs').value = item.specs || '';
+                    document.getElementById('status').value = item.status;
+                    document.getElementById('ledger-modal').style.display = 'block';
+                }
+            });
+    }
+
+    // 保存
+    function saveLedger() {
+        const id = document.getElementById('ledger-id').value;
+        const data = {
+            productName: document.getElementById('productName').value,
+            approvalNo: document.getElementById('approvalNo').value,
+            approvalDate: document.getElementById('approvalDate').value,
+            companyName: document.getElementById('companyName').value,
+            specs: document.getElementById('specs').value,
+            status: parseInt(document.getElementById('status').value)
+        };
+
+        const url = id ? `/productLedger/update` : `/productLedger/add`;
+        const method = id ? 'PUT' : 'POST';
+
+        fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(id ? {...data, id: parseInt(id)} : data)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeModal();
+                    loadLedgerList(DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE);
+                    alert(id ? '更新成功' : '添加成功');
+                } else {
+                    alert('操作失败: ' + (data.message || '未知错误'));
+                }
+            });
+    }
+
+    // 删除
+    function deleteLedger(id) {
+        if (confirm('确定要删除吗？')) {
+            fetch(`/productLedger/delete/${id}`, { method: 'DELETE' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        loadLedgerList(DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE);
+                        alert('删除成功');
+                    } else {
+                        alert('删除失败');
+                    }
+                });
+        }
+    }
+
+    // 关闭模态框
+    function closeModal() {
+        document.getElementById('ledger-modal').style.display = 'none';
+    }
+
+    // 日期格式化
+    function formatDate(dateStr) {
+        if (!dateStr) return '';
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('zh-CN');
+    }
+
+    // 日期格式化（用于input）
+    function formatDateForInput(dateStr) {
+        if (!dateStr) return '';
+        const date = new Date(dateStr);
+        return date.toISOString().slice(0, 10);
+    }
+</script>
+</body>
+</html>

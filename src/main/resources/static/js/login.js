@@ -46,7 +46,9 @@ $(document).ready(function() {
                 debugger
                 console.log(response+"-------------------")
                 if (response.code === "0000") {
-                    alert(response.msg);
+                    // alert(response.msg);
+                    //传token到下一个界面 DOMContentLoaded
+                    localStorage.setItem('token', response.data.token);
                     window.location.href = "html/index.html";
                 } else if(response.code === "9999"){
                     alert(response.msg);
